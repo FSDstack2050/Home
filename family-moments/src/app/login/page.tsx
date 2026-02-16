@@ -34,8 +34,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="text-6xl mb-3">🏠</div>
-          <h1 className="text-3xl font-black text-gray-800">Family Moments</h1>
+          <div className="text-6xl mb-3">&#x1F31E;</div>
+          <h1 className="text-3xl font-black text-gray-800">Our Day</h1>
           <p className="text-sm text-gray-500 mt-1">Stay close, even when apart</p>
         </div>
 

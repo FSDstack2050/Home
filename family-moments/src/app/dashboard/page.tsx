@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import CheckInCard from "@/components/CheckInCard";
+import NotificationBanner from "@/components/NotificationBanner";
 
 interface FamilyMember {
   id: string;
@@ -38,14 +39,21 @@ interface FamilyData {
   members: FamilyMember[];
 }
 
+interface StreakData {
+  familyStreak: number;
+  memberStreaks: { userId: string; name: string; avatar: string; streak: number }[];
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [familyData, setFamilyData] = useState<FamilyData | null>(null);
   const [checkins, setCheckins] = useState<CheckInData[]>([]);
+  const [streakData, setStreakData] = useState<StreakData | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [loading, setLoading] = useState(true);
   const [showInvite, setShowInvite] = useState(false);
+  const [showStreaks, setShowStreaks] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
@@ -53,14 +61,17 @@ export default function DashboardPage() {
 
   const loadData = useCallback(async () => {
     try {
-      const [familyRes, checkinsRes] = await Promise.all([
+      const [familyRes, checkinsRes, streaksRes] = await Promise.all([
         fetch("/api/family"),
         fetch(`/api/checkins?date=${selectedDate}`),
+        fetch("/api/streaks"),
       ]);
       const familyJson = await familyRes.json();
       const checkinsJson = await checkinsRes.json();
+      const streaksJson = await streaksRes.json();
       setFamilyData(familyJson);
       setCheckins(checkinsJson.checkins || []);
+      setStreakData(streaksJson.streaks || null);
     } catch {
       // silently handle
     } finally {
@@ -97,7 +108,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-amber-50 flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="text-4xl animate-bounce">🏠</div>
+          <div className="text-4xl animate-bounce">&#x1F31E;</div>
           <p className="text-gray-500 animate-pulse">Loading your family...</p>
         </div>
       </div>
@@ -106,6 +117,7 @@ export default function DashboardPage() {
 
   const members = familyData?.members || [];
   const checkedInUserIds = new Set(checkins.map((c) => c.userId));
+  const familyStreak = streakData?.familyStreak || 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-amber-50">
@@ -121,31 +133,73 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            {/* Streak badge */}
+            {familyStreak > 0 && (
+              <button
+                onClick={() => setShowStreaks(!showStreaks)}
+                className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-orange-400 to-red-400 rounded-full text-white text-xs font-bold shadow-sm hover:shadow-md transition-all"
+              >
+                &#x1F525; {familyStreak}
+              </button>
+            )}
             <button
               onClick={() => setShowInvite(!showInvite)}
-              className="text-xs px-3 py-1.5 bg-white/70 rounded-full text-gray-600 hover:bg-white"
+              className="text-xs px-3 py-1.5 bg-white/70 rounded-full text-gray-600 hover:bg-white transition-colors"
               title="Invite code"
             >
-              🔗
+              &#x1F517;
             </button>
             <Link
               href="/recap"
-              className="text-xs px-3 py-1.5 bg-white/70 rounded-full text-gray-600 hover:bg-white"
+              className="text-xs px-3 py-1.5 bg-white/70 rounded-full text-gray-600 hover:bg-white transition-colors"
             >
-              📊 Recap
+              &#x1F4CA; Recap
             </Link>
             <Link
               href="/profile"
-              className="text-xs px-3 py-1.5 bg-white/70 rounded-full text-gray-600 hover:bg-white"
+              className="text-xs px-3 py-1.5 bg-white/70 rounded-full text-gray-600 hover:bg-white transition-colors"
             >
-              ⚙️
+              &#x2699;&#xFE0F;
             </Link>
           </div>
         </div>
 
+        {/* Notification banner */}
+        <NotificationBanner />
+
+        {/* Streaks panel */}
+        {showStreaks && streakData && (
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-2xl p-4 mb-4 animate-slideDown">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-orange-800">&#x1F525; Family Streaks</h3>
+              <div className="text-xs text-orange-600 font-medium">
+                {familyStreak} day{familyStreak !== 1 ? "s" : ""} together
+              </div>
+            </div>
+            <div className="space-y-2">
+              {streakData.memberStreaks.map((ms) => (
+                <div key={ms.userId} className="flex items-center gap-2">
+                  <span className="text-lg">{ms.avatar}</span>
+                  <span className="text-xs font-medium text-gray-700 flex-1">{ms.name}</span>
+                  <div className="flex items-center gap-1">
+                    {ms.streak > 0 ? (
+                      <>
+                        <span className="text-orange-500 text-xs">&#x1F525;</span>
+                        <span className="text-xs font-bold text-orange-700">{ms.streak}</span>
+                      </>
+                    ) : (
+                      <span className="text-xs text-gray-400">No streak</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Invite code banner */}
         {showInvite && (
-          <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4 text-center">
+          <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4 text-center animate-slideDown">
             <p className="text-xs text-purple-600 mb-1">Family Invite Code</p>
             <p className="text-xl font-mono font-black text-purple-700 tracking-widest">
               {familyData?.family?.inviteCode}
@@ -168,7 +222,7 @@ export default function DashboardPage() {
                 onClick={() => setSelectedDate(dateStr)}
                 className={`flex-shrink-0 w-14 py-2 rounded-xl text-center transition-all ${
                   selectedDate === dateStr
-                    ? "bg-purple-500 text-white shadow-md"
+                    ? "bg-purple-500 text-white shadow-md scale-105"
                     : "bg-white/60 text-gray-600 hover:bg-white"
                 }`}
               >
@@ -189,9 +243,9 @@ export default function DashboardPage() {
               return (
                 <div key={m.id} className="flex-shrink-0 text-center">
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl border-2 ${
+                    className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl border-2 transition-all ${
                       hasCheckedIn
-                        ? "border-green-400 bg-green-50"
+                        ? "border-green-400 bg-green-50 shadow-sm"
                         : "border-gray-200 bg-gray-50 opacity-50"
                     }`}
                   >
@@ -215,7 +269,7 @@ export default function DashboardPage() {
         {/* Check-ins feed */}
         {checkins.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-4xl mb-3">📭</div>
+            <div className="text-4xl mb-3">&#x1F4ED;</div>
             <p className="text-gray-500 font-medium">No check-ins yet today</p>
             <p className="text-xs text-gray-400 mt-1">Be the first to share a moment!</p>
           </div>

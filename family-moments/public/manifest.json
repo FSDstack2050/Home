@@ -1,6 +1,6 @@
 {
-  "name": "Family Moments",
-  "short_name": "Moments",
+  "name": "Our Day",
+  "short_name": "Our Day",
   "description": "Stay close, even when apart. Daily family check-ins and shared moments.",
   "start_url": "/dashboard",
   "display": "standalone",

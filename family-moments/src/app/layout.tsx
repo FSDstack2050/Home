@@ -3,13 +3,13 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
-  title: "Family Moments",
+  title: "Our Day",
   description: "Stay close, even when apart. Daily family check-ins, shared moments, and weekly recaps.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Family Moments",
+    title: "Our Day",
   },
 };
 

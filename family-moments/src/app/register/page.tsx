@@ -60,7 +60,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-amber-50 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
-          <div className="text-5xl mb-2">🏠</div>
+          <div className="text-5xl mb-2">&#x1F31E;</div>
           <h1 className="text-2xl font-black text-gray-800">Create Your Family</h1>
         </div>
 
