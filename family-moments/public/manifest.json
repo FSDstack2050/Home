@@ -1,0 +1,22 @@
+{
+  "name": "Family Moments",
+  "short_name": "Moments",
+  "description": "Stay close, even when apart. Daily family check-ins and shared moments.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#faf5ff",
+  "theme_color": "#a855f7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
