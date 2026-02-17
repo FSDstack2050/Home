@@ -54,10 +54,17 @@ export interface Comment {
   createdAt: string;
 }
 
+export interface ResetToken {
+  token: string;
+  email: string;
+  expiresAt: number; // unix ms
+}
+
 // --- In-memory data ---
 const families: Map<string, Family> = new Map();
 const users: Map<string, User> = new Map();
 const checkins: Map<string, CheckIn> = new Map();
+const resetTokens: Map<string, ResetToken> = new Map();
 
 // --- Family operations ---
 export function createFamily(name: string): Family {
@@ -443,6 +450,41 @@ export function getWeeklyRecap(familyId: string) {
     familyStreak: streakData.familyStreak,
     memberStreaks: streakData.memberStreaks,
   };
+}
+
+// --- Password reset operations ---
+const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
+
+export function createResetToken(email: string): string | null {
+  const user = getUserByEmail(email);
+  if (!user) return null;
+  const token = uuidv4();
+  resetTokens.set(token, {
+    token,
+    email: user.email,
+    expiresAt: Date.now() + RESET_TOKEN_EXPIRY_MS,
+  });
+  return token;
+}
+
+export function validateResetToken(token: string): ResetToken | null {
+  const entry = resetTokens.get(token);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) {
+    resetTokens.delete(token);
+    return null;
+  }
+  return entry;
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<boolean> {
+  const entry = validateResetToken(token);
+  if (!entry) return false;
+  const user = getUserByEmail(entry.email);
+  if (!user) return false;
+  user.passwordHash = await bcrypt.hash(newPassword, 10);
+  resetTokens.delete(token);
+  return true;
 }
 
 // --- Seed demo data for development ---
