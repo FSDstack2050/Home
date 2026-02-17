@@ -1,10 +1,10 @@
-const CACHE_NAME = "our-day-v1";
+const CACHE_NAME = "our-day-v2";
 
 // Core assets to cache on install
 const PRECACHE_ASSETS = [
   "/offline",
-  "/icon-192.png",
-  "/icon-512.png",
+  "/icon-192.svg",
+  "/icon-512.svg",
 ];
 
 // Install: cache core assets
@@ -44,9 +44,11 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Cache a copy of successful page loads
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          // Only cache successful responses (not 404s, 500s, etc.)
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
           return response;
         })
         .catch(() => {
@@ -71,8 +73,10 @@ self.addEventListener("fetch", (event) => {
         (cached) =>
           cached ||
           fetch(request).then((response) => {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            if (response.ok) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            }
             return response;
           })
       )
