@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd family-moments && npm run build",
+  "installCommand": "cd family-moments && npm install",
+  "framework": "nextjs",
+  "outputDirectory": "family-moments/.next"
+}
