@@ -22,21 +22,23 @@ export async function GET(req: NextRequest) {
 
   let checkins;
   if (userId) {
-    checkins = getCheckInsByUser(userId, 30);
+    checkins = await getCheckInsByUser(userId, 30);
   } else {
-    checkins = getCheckInsByFamily(familyId, date);
+    checkins = await getCheckInsByFamily(familyId, date);
   }
 
   // Enrich with user info
-  const enriched = checkins.map((c) => {
-    const user = getUserById(c.userId);
-    return {
-      ...c,
-      userName: user?.name || "Unknown",
-      userAvatar: user?.avatar || "👤",
-      userIsPet: user?.isPet || false,
-    };
-  });
+  const enriched = await Promise.all(
+    checkins.map(async (c) => {
+      const user = await getUserById(c.userId);
+      return {
+        ...c,
+        userName: user?.name || "Unknown",
+        userAvatar: user?.avatar || "\u{1F464}",
+        userIsPet: user?.isPet || false,
+      };
+    })
+  );
 
   return NextResponse.json({ checkins: enriched });
 }
@@ -65,7 +67,7 @@ export async function POST(req: NextRequest) {
 
   const userId = onBehalfOf || (session.user as any).userId;
 
-  const checkin = createCheckIn({
+  const checkin = await createCheckIn({
     userId,
     emotion,
     quadrant,

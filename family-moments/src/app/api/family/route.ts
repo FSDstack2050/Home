@@ -18,11 +18,11 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const familyId = (session.user as any).familyId;
-  const family = getFamilyById(familyId);
+  const family = await getFamilyById(familyId);
   if (!family) {
     return NextResponse.json({ error: "Family not found" }, { status: 404 });
   }
-  const members = getFamilyMembers(familyId).map((m) => ({
+  const members = (await getFamilyMembers(familyId)).map((m) => ({
     id: m.id,
     name: m.name,
     avatar: m.avatar,
@@ -37,8 +37,8 @@ export async function POST(req: NextRequest) {
   const { action, name, email, password, avatar, familyName, inviteCode, isPet, caretakerId } = body;
 
   if (action === "create") {
-    const family = createFamily(familyName || "My Family");
-    const user = await createUser(name, email, password, family.id, avatar || "👤");
+    const family = await createFamily(familyName || "My Family");
+    const user = await createUser(name, email, password, family.id, avatar || "\u{1F464}");
     return NextResponse.json({
       family,
       user: { id: user.id, name: user.name, email: user.email },
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (action === "join") {
-    const family = getFamilyByInviteCode(inviteCode);
+    const family = await getFamilyByInviteCode(inviteCode);
     if (!family) {
       return NextResponse.json({ error: "Invalid invite code" }, { status: 400 });
     }
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       email,
       password,
       family.id,
-      avatar || "👤",
+      avatar || "\u{1F464}",
       isPet || false,
       caretakerId
     );
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
       petEmail,
       "pet-password",
       familyId,
-      avatar || "🐕",
+      avatar || "\u{1F415}",
       true,
       caretakerId || userId
     );

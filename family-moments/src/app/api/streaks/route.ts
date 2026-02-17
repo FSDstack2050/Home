@@ -11,6 +11,6 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const familyId = (session.user as any).familyId;
-  const streaks = getStreakData(familyId);
+  const streaks = await getStreakData(familyId);
   return NextResponse.json({ streaks });
 }

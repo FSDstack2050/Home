@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
 
-  const token = createResetToken(email);
+  const token = await createResetToken(email);
 
   // Always return success to avoid leaking whether an email exists
   // But include the token in the response for demo purposes (no real email service)

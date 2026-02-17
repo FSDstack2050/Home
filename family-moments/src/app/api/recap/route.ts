@@ -11,6 +11,6 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const familyId = (session.user as any).familyId;
-  const recap = getWeeklyRecap(familyId);
+  const recap = await getWeeklyRecap(familyId);
   return NextResponse.json({ recap });
 }

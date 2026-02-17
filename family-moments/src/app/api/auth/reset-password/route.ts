@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const entry = validateResetToken(token);
+  const entry = await validateResetToken(token);
   if (!entry) {
     return NextResponse.json(
       { error: "Invalid or expired reset link" },
