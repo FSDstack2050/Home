@@ -34,8 +34,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="text-6xl mb-3">🏠</div>
-          <h1 className="text-3xl font-black text-gray-800">Family Moments</h1>
+          <div className="text-6xl mb-3">&#x1F31E;</div>
+          <h1 className="text-3xl font-black text-gray-800">Our Day</h1>
           <p className="text-sm text-gray-500 mt-1">Stay close, even when apart</p>
         </div>
 
@@ -68,6 +68,12 @@ export default function LoginPage() {
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm"
               placeholder="Your password"
             />
+          </div>
+
+          <div className="flex justify-end">
+            <Link href="/forgot-password" className="text-xs text-purple-500 hover:underline">
+              Forgot password?
+            </Link>
           </div>
 
           <button

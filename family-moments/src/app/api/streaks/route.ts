@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getWeeklyRecap, seedDemoData } from "@/lib/store";
+import { getStreakData, seedDemoData } from "@/lib/store";
 
-// GET /api/recap - get weekly family recap
+// GET /api/streaks - get family streak data
 export async function GET() {
   await seedDemoData();
   const session = await getServerSession(authOptions);
@@ -11,6 +11,6 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const familyId = (session.user as any).familyId;
-  const recap = await getWeeklyRecap(familyId);
-  return NextResponse.json({ recap });
+  const streaks = await getStreakData(familyId);
+  return NextResponse.json({ streaks });
 }

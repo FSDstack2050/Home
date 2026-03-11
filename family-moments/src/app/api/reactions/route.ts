@@ -16,13 +16,13 @@ export async function POST(req: NextRequest) {
   const userId = (session.user as any).userId;
 
   if (type === "reaction") {
-    const reaction = addReaction(checkinId, userId, emoji);
+    const reaction = await addReaction(checkinId, userId, emoji);
     if (!reaction) return NextResponse.json({ error: "Check-in not found" }, { status: 404 });
     return NextResponse.json({ reaction });
   }
 
   if (type === "comment") {
-    const comment = addComment(checkinId, userId, text);
+    const comment = await addComment(checkinId, userId, text);
     if (!comment) return NextResponse.json({ error: "Check-in not found" }, { status: 404 });
     return NextResponse.json({ comment });
   }
